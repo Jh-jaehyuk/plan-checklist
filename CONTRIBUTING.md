@@ -41,6 +41,27 @@ Write the test first and watch it fail before you write the fix. `tests/band.tes
 3. Add the code to `userConfig.language.options` in `.claude-plugin/plugin.json`.
 4. Add a test that sets `{ options: { language: '<code>' } }` and checks one toast.
 
+## Commit messages
+
+Use [Conventional Commits](https://www.conventionalcommits.org/): `<type>: <summary>`, with the summary in the imperative, lowercase, and without a trailing period.
+
+| Type | When |
+| --- | --- |
+| `feat` | Something a user can see or use is new |
+| `fix` | A bug is fixed |
+| `docs` | README, CONTRIBUTING, CHANGELOG, comments |
+| `test` | Tests only |
+| `refactor` | Code changes that keep behavior the same |
+| `chore` | Version bumps, manifests, tooling |
+
+```
+feat: show the short step title in the band
+fix: keep the band on one line below 45 columns
+docs: explain how to add a language
+```
+
+A breaking change (a renamed tool, command or option) adds `!` after the type, as in `feat!: rename /plan-todo to /checklist`, and says what to change in the body.
+
 ## Pull requests
 
 - Keep each PR to one change, and describe what a user will see differently.
