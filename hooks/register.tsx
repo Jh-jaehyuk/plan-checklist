@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
 
 import { messagesFor } from './messages'
-import { bandLayout, checkItem, doneCount, extractPlan, filledCells, reminder } from './plan'
+import { bandLayout, checkItem, checklistMarkdown, doneCount, extractPlan, filledCells, reminder, stepTitle } from './plan'
 
 const plan = atom({ plugin: 'plan-checklist', key: 'plan' } as const, null)
 const isExpanded = atom({ plugin: 'plan-checklist', key: 'isExpanded' } as const, false)
@@ -68,10 +68,7 @@ export const register: Register = (on, options) => {
     if (current === null) {
       return { text: t.commandNoPlan }
     }
-    const lines = current.items.map(
-      (one, i) => `${one.evidence === null ? '○' : '✓'} ${i + 1}. ${one.text}${one.evidence === null ? '' : `\n     ${one.evidence}`}`,
-    )
-    return { text: [`${current.title} · ${doneCount(current)}/${current.items.length}`, ...lines].join('\n') }
+    return { text: checklistMarkdown(current) }
   })
 
   on('prompt.compose', async ($, e, next) => {
@@ -108,7 +105,7 @@ export const register: Register = (on, options) => {
 
     // Collapsed: one line with the progress and the step Claude is on, or that all are done.
     // Expanded: the same line titled with the plan, then every step.
-    const label = expanded ? current.title : isDone ? t.allDone(total) : (current.items[nextItem]?.text ?? '')
+    const label = expanded ? current.title : isDone ? t.allDone(total) : stepTitle(current.items[nextItem]?.text ?? '')
     return (
       <Box flexDirection="column">
         <Box columnGap={layout.gap}>
@@ -140,7 +137,7 @@ export const register: Register = (on, options) => {
               <Text color={one.evidence !== null ? 'success' : undefined}>
                 {one.evidence !== null ? '✓' : i === nextItem ? '›' : '○'}
               </Text>{' '}
-              {i + 1}. {one.text}
+              {i + 1}. {stepTitle(one.text)}
             </Text>
           ))}
         {expanded && (

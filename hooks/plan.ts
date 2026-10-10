@@ -75,3 +75,22 @@ export const bandLayout = (columns: number): BandLayout =>
     : columns >= 45
       ? { barWidth: 6, gap: 1, showLabel: false }
       : { barWidth: 0, gap: 1, showLabel: false }
+
+// "Write the test: run pytest" → "Write the test"; a colon inside a word (localhost:8000) is not a split.
+export const stepTitle = (text: string) => text.split(/:\s/)[0]?.trim() || text
+
+export const evidenceLines = (evidence: string) =>
+  evidence
+    .split(/\n|;\s/)
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+
+export function checklistMarkdown(plan: Plan): string {
+  const nextItem = plan.items.findIndex(one => one.evidence === null)
+  const blocks = plan.items.map((one, i) => {
+    const mark = one.evidence !== null ? '✓' : i === nextItem ? '›' : '○'
+    const evidence = one.evidence === null ? [] : evidenceLines(one.evidence).map(line => `     ${line}`)
+    return [`${mark} ${i + 1}. ${stepTitle(one.text)}`, ...evidence].join('\n')
+  })
+  return [`${plan.title} · ${doneCount(plan)}/${plan.items.length}`, ...blocks].join('\n\n')
+}

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'claude-code/testing'
 
 import { MESSAGES } from '../hooks/messages'
-import { checkItem, extractPlan, reminder } from '../hooks/plan'
+import { checkItem, checklistMarkdown, evidenceLines, extractPlan, reminder, stepTitle } from '../hooks/plan'
 
 const ko = MESSAGES.ko
 
@@ -109,4 +109,44 @@ test('english is the default language', async ($, on) => {
   const bare = await $.tool.call({ tool: 'mcp__plan-checklist__plan_check', item: 1, evidence: 'done' })
   expect(bare.isError).toBe(true)
   expect(JSON.stringify(bare)).toContain('Evidence is required')
+})
+
+describe('checklist readability', () => {
+  test('step title is the text before the first colon', () => {
+    expect(stepTitle('Compose 뼈대 작성: docker compose up 후 curl')).toBe('Compose 뼈대 작성')
+    expect(stepTitle('curl localhost:8000/health 확인')).toBe('curl localhost:8000/health 확인')
+    expect(stepTitle('재현 테스트 작성')).toBe('재현 테스트 작성')
+  })
+
+  test('evidence splits into one check per line', () => {
+    expect(evidenceLines('curl /health → 200; alembic current → head\npytest → 4 passed\n')).toEqual([
+      'curl /health → 200',
+      'alembic current → head',
+      'pytest → 4 passed',
+    ])
+  })
+
+  test('checklist is plain text: short titles, one evidence check per indented line', () => {
+    const plan = {
+      title: '게시판',
+      items: [
+        { text: '뼈대 작성: compose up 후 확인', evidence: 'curl /health → 200; alembic → `head`' },
+        { text: '로그인 구현: pytest', evidence: null },
+        { text: '권한 구현', evidence: null },
+      ],
+    }
+    expect(checklistMarkdown(plan)).toBe(
+      [
+        '게시판 · 1/3',
+        '',
+        '✓ 1. 뼈대 작성',
+        '     curl /health → 200',
+        '     alembic → `head`',
+        '',
+        '› 2. 로그인 구현',
+        '',
+        '○ 3. 권한 구현',
+      ].join('\n'),
+    )
+  })
 })
