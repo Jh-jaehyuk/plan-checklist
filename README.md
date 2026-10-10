@@ -1,5 +1,7 @@
 # plan-checklist
 
+![plan-checklist: Claude checks a plan step off with evidence while a progress bar fills above the prompt](docs/social-preview.png)
+
 A Claude Code mod that turns the plan you approve in plan mode into a todo list, and lets Claude check a step off only when it shows how it verified it.
 
 ```

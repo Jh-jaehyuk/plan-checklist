@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <defs>
+    <style>
+      .sans { font-family: -apple-system, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; }
+      .mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 17px; white-space: pre; }
+    </style>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4eba65" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#4eba65" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1280" height="640" fill="#0d1117"/>
+  <rect width="1280" height="640" fill="url(#glow)"/>
+
+  <!-- Left: name and pitch -->
+  <text x="72" y="250" class="sans" font-size="58" font-weight="700" fill="#f0f6fc">plan-checklist</text>
+  <text x="72" y="306" class="sans" font-size="25" fill="#9198a1">Your approved plan becomes a checklist</text>
+  <text x="72" y="340" class="sans" font-size="25" fill="#9198a1">above the prompt. Claude ticks a step</text>
+  <text x="72" y="374" class="sans" font-size="25" fill="#9198a1">only with <tspan fill="#4eba65" font-weight="600">evidence</tspan>.</text>
+  <text x="72" y="430" class="sans" font-size="18" fill="#6e7681">A Claude Code mod · MIT</text>
+
+  <!-- Right: terminal -->
+  <rect x="600" y="78" width="616" height="484" rx="12" fill="#161b22" stroke="#30363d"/>
+  <path d="M600 112 h616" stroke="#30363d"/>
+  <circle cx="624" cy="95" r="6" fill="#ff5f57"/>
+  <circle cx="644" cy="95" r="6" fill="#febc2e"/>
+  <circle cx="664" cy="95" r="6" fill="#28c840"/>
+  <text x="908" y="100" class="mono" font-size="14" fill="#6e7681" text-anchor="middle">claude</text>
+
+  <text x="626" y="152" class="mono"><tspan fill="#4eba65">⏺</tspan><tspan fill="#f0f6fc" font-weight="700"> plan_check</tspan><tspan fill="#9198a1">(item: 3)</tspan></text>
+  <text x="646" y="180" class="mono" fill="#6e7681">⎿</text>
+  <text x="678" y="180" class="mono" fill="#9198a1">pytest tests/test_read.py → 7 passed</text>
+  <text x="678" y="206" class="mono" fill="#9198a1">curl /posts → 200</text>
+  <text x="678" y="232" class="mono" fill="#f0f6fc">Item 3 checked (3/5)</text>
+
+  <rect x="628" y="280" width="150" height="8" rx="4" fill="#30363d"/>
+  <rect x="628" y="280" width="90" height="8" rx="4" fill="#b1b9f9"/>
+  <text x="796" y="292" class="mono"><tspan fill="#f0f6fc" font-weight="700">3/5</tspan><tspan fill="#f0f6fc">  Board API</tspan></text>
+  <text x="1192" y="292" class="mono" fill="#9198a1" text-anchor="end">[Hide]</text>
+  <text x="626" y="322" class="mono"><tspan fill="#4eba65">  ✓</tspan><tspan fill="#6e7681"> 1. Compose skeleton</tspan></text>
+  <text x="626" y="348" class="mono"><tspan fill="#4eba65">  ✓</tspan><tspan fill="#6e7681"> 2. Sign up and log in</tspan></text>
+  <text x="626" y="374" class="mono"><tspan fill="#4eba65">  ✓</tspan><tspan fill="#6e7681"> 3. Public reads</tspan></text>
+  <text x="626" y="400" class="mono" fill="#f0f6fc" font-weight="700">  › 4. Write permissions</text>
+  <text x="626" y="426" class="mono" fill="#6e7681">  ○ 5. End-to-end check</text>
+
+  <rect x="622" y="470" width="572" height="56" rx="8" fill="none" stroke="#484f58"/>
+  <text x="642" y="504" class="mono" fill="#9198a1">&gt;</text>
+  <rect x="662" y="489" width="10" height="20" fill="#9198a1"/>
+</svg>
