@@ -1,0 +1,24 @@
+{
+  "name": "plan-checklist",
+  "version": "0.2.0",
+  "description": "Turns an approved plan into a todo list above the prompt; Claude checks each step off only with verification evidence",
+  "author": {
+    "name": "Jaehyuk Han",
+    "url": "https://github.com/Jh-jaehyuk"
+  },
+  "repository": "https://github.com/Jh-jaehyuk/plan-checklist",
+  "license": "MIT",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "language": {
+      "type": "string",
+      "title": "Language",
+      "description": "Language of the band, toasts, /checklist and the reminder Claude reads",
+      "default": "en",
+      "options": [
+        "en",
+        "ko"
+      ]
+    }
+  }
+}

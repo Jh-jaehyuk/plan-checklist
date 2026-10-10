@@ -1,0 +1,15 @@
+{
+  "name": "plan-checklist",
+  "description": "Evidence-gated plan checklist for Claude Code",
+  "owner": {
+    "name": "Jaehyuk Han",
+    "url": "https://github.com/Jh-jaehyuk"
+  },
+  "plugins": [
+    {
+      "name": "plan-checklist",
+      "source": "./",
+      "description": "Turns an approved plan into a checklist above the prompt; Claude checks each step off only with verification evidence"
+    }
+  ]
+}
