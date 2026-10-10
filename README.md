@@ -51,6 +51,10 @@ The language applies to the band, the toasts, `/checklist` and the reminder Clau
 - A plan without checkboxes, a numbered list or bullets has no steps to track; you get a toast saying so.
 - At most 20 steps are tracked.
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Changes are listed in [CHANGELOG.md](CHANGELOG.md).
+
 ## License
 
 MIT
