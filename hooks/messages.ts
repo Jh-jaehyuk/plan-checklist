@@ -5,6 +5,7 @@ export type Messages = {
   noPlan: string
   noSuchItem: (item: number, total: number) => string
   needEvidence: string
+  subagentCheck: string
   reminderTitle: (title: string, done: number, total: number) => string
   reminderLeft: string
   reminderRule: (tool: string) => string
@@ -31,6 +32,7 @@ export const MESSAGES: Record<Lang, Messages> = {
     noPlan: 'No plan in progress.',
     noSuchItem: (item, total) => `There is no item ${item}. Pick one from 1 to ${total}.`,
     needEvidence: 'Evidence is required. Give the verification command you actually ran and its result.',
+    subagentCheck: 'Only the main agent checks steps off. Put the commands you ran and their results in your report; the main agent verifies them and checks the step.',
     reminderTitle: (title, done, total) => `# Plan in progress: ${title} (${done}/${total})`,
     reminderLeft: 'Remaining items:',
     reminderRule: tool =>
@@ -57,6 +59,7 @@ export const MESSAGES: Record<Lang, Messages> = {
     noPlan: '진행 중인 계획이 없습니다.',
     noSuchItem: (item, total) => `항목 ${item}은 없습니다. 1~${total} 중에서 고르세요.`,
     needEvidence: '증거가 필요합니다. 실제로 돌린 검증 명령과 그 결과를 적으세요.',
+    subagentCheck: '단계 체크는 메인 에이전트만 합니다. 돌린 명령과 결과를 보고서에 담으세요. 메인 에이전트가 확인하고 체크합니다.',
     reminderTitle: (title, done, total) => `# 진행 중인 계획: ${title} (${done}/${total})`,
     reminderLeft: '남은 항목:',
     reminderRule: tool =>

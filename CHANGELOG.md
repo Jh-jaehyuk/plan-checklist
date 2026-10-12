@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2 (2026-10-12)
+
+- Only the main agent can check a step off. A subagent's `plan_check` is refused and it is told to put its evidence in its report, so the main agent verifies the work before checking it. This also keeps every check in the main transcript, which a resumed session replays.
+
 ## 0.3.1 (2026-10-12)
 
 - The checklist comes back after a session is resumed: leaving to agent view with ← and coming back, `claude --resume`, `/resume` or `/branch`. It used to disappear because session state does not survive a resume or a branch. The plan and its checks are now replayed from the transcript.
