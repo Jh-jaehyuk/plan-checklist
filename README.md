@@ -53,6 +53,20 @@ The language applies to the band, the toasts, `/checklist` and the reminder Clau
 - A plan without checkboxes, a numbered list or bullets has no steps to track; you get a toast saying so.
 - At most 20 steps are tracked.
 
+## What it hooks
+
+plan-checklist is a mod: it hooks these Claude Code events and changes nothing else.
+
+| Event | What the hook does |
+| --- | --- |
+| `tool.call` on `ExitPlanMode` | Lets the tool run, then reads the approved plan from its result. The result goes back unchanged. |
+| `tool.call` on `plan_check` | `plan_check` is the plugin's own tool, registered at session start, and this hook is its implementation: it checks the step off or refuses the check. No other tool stands behind it. |
+| `command.run` on `checklist` | Answers the plugin's own `/checklist` command. |
+| `prompt.compose` | While a plan is in progress, adds one section listing the remaining steps to the system prompt. Every other section is left as it is. |
+| `session.start`, `SessionStart` | Registers `plan_check` and `/checklist`. On a resume or a branch, reads the session's transcript to rebuild the list. |
+| `session.end` | On `/clear`, drops the list. |
+| `ui.render` on `AbovePrompt` | Draws the progress band above the prompt while a plan is in progress. |
+
 ## Privacy
 
 plan-checklist sends nothing outside Claude Code. It makes no network requests and writes no files: the plan lives in the session's state, and a resumed session rebuilds it from its own transcript.
