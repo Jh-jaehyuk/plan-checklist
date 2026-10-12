@@ -1,13 +1,26 @@
 import { atom, read, update } from 'claude-code'
-import type { Register } from 'claude-code'
+import type { EngineInterface, Register } from 'claude-code'
 
+import type { Messages } from './messages'
 import { messagesFor } from './messages'
-import { bandLayout, checkItem, checklistMarkdown, doneCount, extractPlan, filledCells, reminder, stepTitle } from './plan'
+import { bandLayout, checkItem, checklistMarkdown, doneCount, extractPlan, filledCells, replayPlan, reminder, stepTitle } from './plan'
 
 const plan = atom({ plugin: 'plan-checklist', key: 'plan' } as const, null)
 const isExpanded = atom({ plugin: 'plan-checklist', key: 'isExpanded' } as const, false)
 
 const CHECK_TOOL = 'mcp__plan-checklist__plan_check'
+
+// Session state does not survive a resume (agent view's ←, /resume) or /branch: rebuild it from the transcript.
+async function restore($: EngineInterface, t: Messages) {
+  if ((await read($, plan)) !== null) {
+    return
+  }
+  const messages = await $.session.messages()
+  const restored = replayPlan(messages.flatMap(one => one.toolUses), CHECK_TOOL, t)
+  if (restored !== null) {
+    await update($, plan, () => restored)
+  }
+}
 
 export const register: Register = (on, options) => {
   const t = messagesFor(options.language)
@@ -27,9 +40,17 @@ export const register: Register = (on, options) => {
       isDeferred: false,
     })
     await $.command.register({ name: 'checklist', description: t.commandDescription })
+    await restore($, t)
 
     return next(e)
   })
+
+  on('classic.SessionStart', async ($, e, next) => {
+    if (e.source === 'resume' || e.source === 'fork') {
+      await restore($, t)
+    }
+    return next(e)
+  }).catch(($, e, next) => next(e))
 
   on('tool.call', { tool: 'ExitPlanMode' }, async ($, e, next) => {
     const ran = await next(e)

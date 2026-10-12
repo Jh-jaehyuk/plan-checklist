@@ -45,6 +45,26 @@ export function checkItem(plan: Plan | null, item: number, evidence: string, t: 
   return { plan: { ...plan, items } }
 }
 
+// What the transcript holds of one tool call, as `$.session.messages()` lists it.
+export type ToolUseRecord = { tool: string; input: Record<string, unknown>; result?: unknown; text?: string }
+
+// A resumed session starts with empty state: replay its approved plans and checks to get the plan back.
+export function replayPlan(toolUses: ToolUseRecord[], checkTool: string, t: Messages): Plan | null {
+  let plan: Plan | null = null
+  for (const use of toolUses) {
+    const record = use.result as { plan?: unknown } | undefined
+    if (use.tool === 'ExitPlanMode' && typeof record?.plan === 'string') {
+      plan = extractPlan(record.plan, t) ?? plan
+    } else if (use.tool === checkTool && use.text !== undefined) {
+      const outcome = checkItem(plan, Number(use.input.item), String(use.input.evidence ?? ''), t)
+      if ('plan' in outcome) {
+        plan = outcome.plan
+      }
+    }
+  }
+  return plan
+}
+
 export const doneCount = (plan: Plan) => plan.items.filter(one => one.evidence !== null).length
 
 export function reminder(plan: Plan, tool: string, t: Messages): string | null {

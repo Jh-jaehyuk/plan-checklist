@@ -49,7 +49,7 @@ The language applies to the band, the toasts, `/checklist` and the reminder Clau
 
 ## Limits
 
-- The list lives in the session. Resuming the session in a new process (`--resume`) starts without it.
+- A resumed session (agent view's ←, `--resume`, `/resume`) or a branch (`/branch`) rebuilds the list from its transcript, so a plan approved more than 4096 messages back is not found.
 - A plan without checkboxes, a numbered list or bullets has no steps to track; you get a toast saying so.
 - At most 20 steps are tracked.
 
