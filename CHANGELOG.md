@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Claude no longer finishes a plan's work without checking the steps off. Ending a turn with steps unchecked is blocked once, with the remaining steps listed; it is blocked again only after a step is checked.
+- The reminder of the remaining steps now comes with each prompt instead of sitting in the system prompt, where it did not reach Claude.
+
 ## 0.3.2 (2026-10-12)
 
 - Only the main agent can check a step off. A subagent's `plan_check` is refused and it is told to put its evidence in its report, so the main agent verifies the work before checking it. This also keeps every check in the main transcript, which a resumed session replays.
