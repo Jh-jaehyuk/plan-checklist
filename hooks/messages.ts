@@ -15,6 +15,8 @@ export type Messages = {
   evidenceParam: string
   commandDescription: string
   commandNoPlan: string
+  closed: (title: string) => string
+  closedNote: (title: string) => string
   noStepsFound: string
   tracking: (count: number) => string
   checked: (done: number, total: number) => string
@@ -44,8 +46,11 @@ export const MESSAGES: Record<Lang, Messages> = {
       'Mark one item of the plan in progress as done. Call it only for an item you have verified, and put the verification command you ran and its result in evidence.',
     itemParam: 'Item number (starting at 1)',
     evidenceParam: 'One check per line, "command → result" (e.g. "pytest tests/x.py → 12 passed")',
-    commandDescription: 'Show the steps of the plan in progress with their evidence',
+    commandDescription: 'Show the steps of the plan in progress with their evidence; close stops tracking it',
     commandNoPlan: 'No plan in progress. Approve a plan in plan mode to start tracking it.',
+    closed: title => `Closed the plan: ${title}`,
+    closedNote: title =>
+      `The user closed the plan "${title}" with steps left. Stop tracking it: do not continue its remaining steps unless the user asks.`,
     noStepsFound: 'plan-checklist: no steps found in the plan (use a numbered list or checkboxes)',
     tracking: count => `Tracking ${count} steps from the approved plan`,
     checked: (done, total) => `Step done (${done}/${total})`,
@@ -55,7 +60,7 @@ export const MESSAGES: Record<Lang, Messages> = {
     allDone: total => `✓ All ${total} steps done`,
     showAll: 'Show all',
     hide: 'Hide',
-    evidenceHint: '/checklist shows the evidence for each step',
+    evidenceHint: '/checklist shows the evidence for each step · /checklist close ends the plan',
   },
   ko: {
     untitled: '계획',
@@ -72,8 +77,11 @@ export const MESSAGES: Record<Lang, Messages> = {
       '진행 중인 계획의 항목 하나를 완료로 체크한다. 실제로 검증을 끝낸 항목에만 호출하고, evidence에 돌린 검증 명령과 결과를 적는다.',
     itemParam: '항목 번호 (1부터)',
     evidenceParam: '검증 하나당 한 줄, "명령 → 결과" (예: "pytest tests/x.py → 12 passed")',
-    commandDescription: '진행 중인 계획의 항목과 증거를 보여준다',
+    commandDescription: '진행 중인 계획의 항목과 증거를 보여준다. close로 추적을 끝낸다',
     commandNoPlan: '진행 중인 계획이 없어요. plan 모드에서 계획을 승인하면 생겨요.',
+    closed: title => `계획을 닫았어요: ${title}`,
+    closedNote: title =>
+      `사용자가 단계가 남은 계획 "${title}"을 닫았다. 더 이상 추적하지 않는다. 사용자가 요청하지 않으면 남은 단계를 이어서 진행하지 않는다.`,
     noStepsFound: 'plan-checklist: 계획에서 항목을 찾지 못했어요 (번호 목록이나 체크박스가 필요해요)',
     tracking: count => `승인된 계획에서 단계 ${count}개를 추적해요`,
     checked: (done, total) => `단계 완료 (${done}/${total})`,
@@ -83,7 +91,7 @@ export const MESSAGES: Record<Lang, Messages> = {
     allDone: total => `✓ ${total}단계 모두 완료`,
     showAll: '전체 보기',
     hide: '접기',
-    evidenceHint: '/checklist 로 단계별 증거를 볼 수 있어요',
+    evidenceHint: '/checklist 로 단계별 증거를 볼 수 있어요 · /checklist close 로 계획을 닫아요',
   },
 }
 

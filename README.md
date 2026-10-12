@@ -24,6 +24,7 @@ Answer `y` to add the marketplace, then pick a scope (user scope loads it in eve
 2. **Watch progress above the prompt.** A one-line band shows the progress bar and the step Claude is on. Press **Show all** to see every step, and **Hide** to collapse it again.
 3. **Claude checks steps with evidence.** Claude marks a step done through the `plan_check` tool, and must say which verification it ran and what came out (for example `pytest tests/test_refund.py → 12 passed`). A check without real evidence is refused. Only the main agent checks: any other agent (a subagent, a teammate, a workflow agent) is refused and reports its evidence instead, and the main agent verifies it before checking the step.
 4. **Nothing gets forgotten.** Every turn, Claude is reminded of the remaining steps. The list survives `/compact`, and `/clear` wipes it.
+5. **You can end it early.** `/checklist close` stops tracking a plan that still has steps left, and tells Claude not to carry on with them. A resumed session does not bring it back.
 
 When every step is checked you get a toast and the bar turns green.
 
@@ -32,6 +33,7 @@ When every step is checked you get a toast and the bar turns green.
 | Command | What it does |
 | --- | --- |
 | `/checklist` | Lists every step with the evidence Claude gave for it |
+| `/checklist close` | Stops tracking the plan in progress, steps left or not, and tells Claude to stop working on it |
 
 ## Settings
 
@@ -49,7 +51,7 @@ The language applies to the band, the toasts, `/checklist` and the reminder Clau
 
 ## Limits
 
-- A resumed session (agent view's ←, `--resume`, `/resume`) or a branch (`/branch`) rebuilds the list from its transcript, so a plan approved more than 4096 messages back is not found.
+- A resumed session (agent view's ←, `--resume`, `/resume`) or a branch (`/branch`) rebuilds the list from its transcript, starting after the last `/checklist close`, so a plan approved more than 4096 messages back is not found.
 - A plan without checkboxes, a numbered list or bullets has no steps to track; you get a toast saying so.
 - At most 20 steps are tracked.
 
@@ -61,7 +63,7 @@ plan-checklist is a mod: it hooks these Claude Code events and changes nothing e
 | --- | --- |
 | `tool.call` on `ExitPlanMode` | Lets the tool run, then reads the approved plan from its result. The result goes back unchanged. |
 | `tool.call` on `plan_check` | Stands in for the tool `mcp__plan-checklist__plan_check` on every call. That tool is the plugin's own, registered at session start, and this hook is its implementation: it checks the step off or refuses the check. No other tool stands behind it, so there is nothing for `next` to give back. |
-| `command.run` on `checklist` | Answers the plugin's own `/checklist` command. |
+| `command.run` on `checklist` | Answers the plugin's own `/checklist` command, and `/checklist close`, which drops the list and leaves Claude a note that the plan was closed. |
 | `UserPromptSubmit` | While a plan is in progress, hands Claude the remaining steps with each prompt. The prompt itself is left as it is. |
 | `Stop` | When Claude ends a turn with steps unchecked, blocks it once and asks it to check what it verified or say why a step must wait. It blocks again only after a step is checked, so a step that waits on something else does not block every turn. |
 | `session.start`, `SessionStart` | Registers `plan_check` and `/checklist`. On a resume or a branch, reads the session's transcript to rebuild the list. |

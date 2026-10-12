@@ -48,6 +48,20 @@ export function checkItem(plan: Plan | null, item: number, evidence: string, t: 
 // What the transcript holds of one tool call, as `$.session.messages()` lists it.
 export type ToolUseRecord = { tool: string; input: Record<string, unknown>; result?: unknown; text?: string }
 
+// `/checklist close` as the transcript keeps it. The note it leaves Claude is a meta row `$.session.messages()` skips.
+const CLOSE_ROW = /<command-name>\/(?:plan-checklist:)?checklist<\/command-name>[\s\S]*<command-args>\s*close\s*<\/command-args>/
+
+// Only what came after the last `/checklist close`: a closed plan must not come back on resume.
+export function sinceLastClose<M extends { role: string; text: string }>(messages: readonly M[]): M[] {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const one = messages[i]
+    if (one !== undefined && one.role === 'user' && CLOSE_ROW.test(one.text)) {
+      return messages.slice(i + 1)
+    }
+  }
+  return [...messages]
+}
+
 // A resumed session starts with empty state: replay its approved plans and checks to get the plan back.
 export function replayPlan(toolUses: ToolUseRecord[], checkTool: string, t: Messages): Plan | null {
   let plan: Plan | null = null
