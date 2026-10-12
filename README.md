@@ -22,7 +22,7 @@ Answer `y` to add the marketplace, then pick a scope (user scope loads it in eve
 
 1. **Approve a plan.** When you accept a plan in plan mode, its steps become a todo list. The steps are the plan's checkboxes; if there are none, its top-level numbered list; failing that, its top-level bullets.
 2. **Watch progress above the prompt.** A one-line band shows the progress bar and the step Claude is on. Press **Show all** to see every step, and **Hide** to collapse it again.
-3. **Claude checks steps with evidence.** Claude marks a step done through the `plan_check` tool, and must say which verification it ran and what came out (for example `pytest tests/test_refund.py → 12 passed`). A check without real evidence is refused. Only the main agent checks: a subagent reports its evidence, and the main agent verifies it before checking the step.
+3. **Claude checks steps with evidence.** Claude marks a step done through the `plan_check` tool, and must say which verification it ran and what came out (for example `pytest tests/test_refund.py → 12 passed`). A check without real evidence is refused. Only the main agent checks: any other agent (a subagent, a teammate, a workflow agent) is refused and reports its evidence instead, and the main agent verifies it before checking the step.
 4. **Nothing gets forgotten.** Every turn, Claude is reminded of the remaining steps. The list survives `/compact`, and `/clear` wipes it.
 
 When every step is checked you get a toast and the bar turns green.
@@ -52,6 +52,10 @@ The language applies to the band, the toasts, `/checklist` and the reminder Clau
 - A resumed session (agent view's ←, `--resume`, `/resume`) or a branch (`/branch`) rebuilds the list from its transcript, so a plan approved more than 4096 messages back is not found.
 - A plan without checkboxes, a numbered list or bullets has no steps to track; you get a toast saying so.
 - At most 20 steps are tracked.
+
+## Privacy
+
+plan-checklist sends nothing outside Claude Code. It makes no network requests and writes no files: the plan lives in the session's state, and a resumed session rebuilds it from its own transcript.
 
 ## Contributing
 
