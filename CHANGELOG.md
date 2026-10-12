@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 (2026-10-12)
+
+- `/checklist close` ends a plan you no longer want tracked, even with steps left. The band goes away, the turn is no longer held for unchecked steps, and Claude is told not to carry on with the remaining ones. A resumed session or a branch does not bring the closed plan back. Before this, only `/clear` dropped a plan.
+
 ## 0.3.3 (2026-10-12)
 
 - Claude no longer finishes a plan's work without checking the steps off. Ending a turn with steps unchecked is blocked once, with the remaining steps listed; it is blocked again only after a step is checked.

@@ -3,7 +3,7 @@ import type { EngineInterface, Register } from 'claude-code'
 
 import type { Messages } from './messages'
 import { messagesFor } from './messages'
-import { bandLayout, checkItem, checklistMarkdown, doneCount, extractPlan, filledCells, replayPlan, reminder, stepTitle } from './plan'
+import { bandLayout, checkItem, checklistMarkdown, doneCount, extractPlan, filledCells, replayPlan, reminder, sinceLastClose, stepTitle } from './plan'
 
 const plan = atom({ plugin: 'plan-checklist', key: 'plan' } as const, null)
 const isExpanded = atom({ plugin: 'plan-checklist', key: 'isExpanded' } as const, false)
@@ -18,7 +18,7 @@ async function restore($: EngineInterface, t: Messages) {
     return
   }
   const messages = await $.session.messages()
-  const restored = replayPlan(messages.flatMap(one => one.toolUses), CHECK_TOOL, t)
+  const restored = replayPlan(sinceLastClose(messages).flatMap(one => one.toolUses), CHECK_TOOL, t)
   if (restored !== null) {
     await update($, plan, () => restored)
   }
@@ -92,10 +92,16 @@ export const register: Register = (on, options) => {
     return { result: t.checkResult(input.item, done, total) }
   })
 
-  on('command.run', { command: 'checklist' }, async $ => {
+  on('command.run', { command: 'checklist' }, async ($, e) => {
     const current = await read($, plan)
     if (current === null) {
       return { text: t.commandNoPlan }
+    }
+    // The person ends the plan with steps left: stop tracking it and tell Claude not to carry on with them.
+    if (e.args.trim() === 'close') {
+      await update($, plan, () => null)
+      await update($, nudgedAt, () => null)
+      return { text: t.closed(current.title), context: [t.closedNote(current.title)] }
     }
     return { text: checklistMarkdown(current) }
   })

@@ -1,6 +1,6 @@
 {
   "name": "plan-checklist",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "Turns an approved plan into a todo list above the prompt; Claude checks each step off only with verification evidence",
   "author": {
     "name": "Jaehyuk Han",
