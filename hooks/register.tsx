@@ -70,6 +70,11 @@ export const register: Register = (on, options) => {
   }).catch(($, e, next) => next(e))
 
   on('tool.call', { tool: CHECK_TOOL }, async ($, e) => {
+    // A subagent's word is not verification: it reports evidence, the main agent checks it and the step.
+    // This also keeps every check in the main transcript, which a resumed session replays.
+    if (e.agentId !== undefined) {
+      return { result: t.subagentCheck, isError: true as const }
+    }
     const input = e as unknown as { item: number; evidence: string }
     const outcome = checkItem(await read($, plan), Number(input.item), String(input.evidence ?? ''), t)
     if ('error' in outcome) {
