@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.3.3 (2026-10-12)
 
 - Claude no longer finishes a plan's work without checking the steps off. Ending a turn with steps unchecked is blocked once, with the remaining steps listed; it is blocked again only after a step is checked.
 - The reminder of the remaining steps now comes with each prompt instead of sitting in the system prompt, where it did not reach Claude.
