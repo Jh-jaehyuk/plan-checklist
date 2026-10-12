@@ -9,6 +9,7 @@ export type Messages = {
   reminderTitle: (title: string, done: number, total: number) => string
   reminderLeft: string
   reminderRule: (tool: string) => string
+  stopGate: string
   toolDescription: string
   itemParam: string
   evidenceParam: string
@@ -37,6 +38,8 @@ export const MESSAGES: Record<Lang, Messages> = {
     reminderLeft: 'Remaining items:',
     reminderRule: tool =>
       `When you finish an item, call ${tool} with { item, evidence }. Put the verification commands you actually ran in evidence, one per line as "command → result". Do not check an item you have not verified.`,
+    stopGate:
+      'Before ending the turn, check every step you have verified. For a step you cannot verify yet, say in one line why and what it waits for.',
     toolDescription:
       'Mark one item of the plan in progress as done. Call it only for an item you have verified, and put the verification command you ran and its result in evidence.',
     itemParam: 'Item number (starting at 1)',
@@ -64,6 +67,7 @@ export const MESSAGES: Record<Lang, Messages> = {
     reminderLeft: '남은 항목:',
     reminderRule: tool =>
       `항목을 끝내면 ${tool}를 { item, evidence }로 호출한다. evidence에는 실제로 돌린 검증을 "명령 → 결과" 형식으로 한 줄에 하나씩 적는다. 검증하지 않은 항목은 체크하지 않는다.`,
+    stopGate: '턴을 끝내기 전에 검증을 마친 항목을 모두 체크한다. 아직 검증할 수 없는 항목은 이유와 무엇을 기다리는지 한 줄로 적는다.',
     toolDescription:
       '진행 중인 계획의 항목 하나를 완료로 체크한다. 실제로 검증을 끝낸 항목에만 호출하고, evidence에 돌린 검증 명령과 결과를 적는다.',
     itemParam: '항목 번호 (1부터)',

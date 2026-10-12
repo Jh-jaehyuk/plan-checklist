@@ -7,6 +7,8 @@ import { bandLayout, checkItem, checklistMarkdown, doneCount, extractPlan, fille
 
 const plan = atom({ plugin: 'plan-checklist', key: 'plan' } as const, null)
 const isExpanded = atom({ plugin: 'plan-checklist', key: 'isExpanded' } as const, false)
+// How many steps were done when a stop was last blocked: a step Claude cannot check yet blocks once, not every turn.
+const nudgedAt = atom({ plugin: 'plan-checklist', key: 'nudgedAt' } as const, null)
 
 const CHECK_TOOL = 'mcp__plan-checklist__plan_check'
 
@@ -64,6 +66,7 @@ export const register: Register = (on, options) => {
       return ran
     }
     await update($, plan, () => extracted)
+    await update($, nudgedAt, () => null)
     $.ui.toast(t.tracking(extracted.items.length))
 
     return ran
@@ -97,19 +100,37 @@ export const register: Register = (on, options) => {
     return { text: checklistMarkdown(current) }
   })
 
-  on('prompt.compose', async ($, e, next) => {
-    const composed = await next(e)
+  // The reminder rides each prompt, next to the work, rather than the system prompt.
+  on('classic.UserPromptSubmit', async ($, e, next) => {
+    const result = await next(e)
     const current = await read($, plan)
     const text = current === null ? null : reminder(current, CHECK_TOOL, t)
     if (text === null) {
-      return composed
+      return result
     }
-    return { sections: [...composed.sections, { id: 'plan-checklist:reminder', text, scope: 'session' as const }] }
-  })
+    return { ...result, additionalContext: [...(result.additionalContext ?? []), text] }
+  }).catch(($, e, next) => next(e))
+
+  // A reminder can be read past; ending the turn with unchecked steps is stopped once per bit of progress.
+  on('classic.Stop', async ($, e, next) => {
+    const result = await next(e)
+    const current = await read($, plan)
+    const text = current === null ? null : reminder(current, CHECK_TOOL, t)
+    if (e.stop_hook_active || result.block !== undefined || current === null || text === null) {
+      return result
+    }
+    const done = doneCount(current)
+    if ((await read($, nudgedAt)) === done) {
+      return result
+    }
+    await update($, nudgedAt, () => done)
+    return { ...result, block: [text, t.stopGate].join('\n') }
+  }).catch(($, e, next) => next(e))
 
   on('session.end', async ($, e, next) => {
     if (e.reason === 'clear') {
       await update($, plan, () => null)
+      await update($, nudgedAt, () => null)
     }
     return next(e)
   })
