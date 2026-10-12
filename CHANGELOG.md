@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 (2026-10-12)
+
+- The checklist comes back after a session is resumed: leaving to agent view with ← and coming back, `claude --resume`, `/resume` or `/branch`. It used to disappear because session state does not survive a resume or a branch. The plan and its checks are now replayed from the transcript.
+
 ## 0.3.0 (2026-10-10)
 
 - `/checklist` is easier to read. Each step shows its short title (the text before the first `: `), evidence is listed one check per line, and a blank line separates steps.
