@@ -60,7 +60,7 @@ plan-checklist is a mod: it hooks these Claude Code events and changes nothing e
 | Event | What the hook does |
 | --- | --- |
 | `tool.call` on `ExitPlanMode` | Lets the tool run, then reads the approved plan from its result. The result goes back unchanged. |
-| `tool.call` on `plan_check` | `plan_check` is the plugin's own tool, registered at session start, and this hook is its implementation: it checks the step off or refuses the check. No other tool stands behind it. |
+| `tool.call` on `plan_check` | Stands in for the tool `mcp__plan-checklist__plan_check` on every call. That tool is the plugin's own, registered at session start, and this hook is its implementation: it checks the step off or refuses the check. No other tool stands behind it, so there is nothing for `next` to give back. |
 | `command.run` on `checklist` | Answers the plugin's own `/checklist` command. |
 | `UserPromptSubmit` | While a plan is in progress, hands Claude the remaining steps with each prompt. The prompt itself is left as it is. |
 | `Stop` | When Claude ends a turn with steps unchecked, blocks it once and asks it to check what it verified or say why a step must wait. It blocks again only after a step is checked, so a step that waits on something else does not block every turn. |
