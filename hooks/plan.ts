@@ -10,20 +10,45 @@ const clean = (text: string) => text.replace(/\*\*|`/g, '').trim()
 // The first format that matches becomes the steps: checkboxes, then top-level numbers, then top-level bullets.
 const PATTERNS = [/^\s*[-*]\s+\[[ xX]\]\s+(.+)$/, /^\d+[.)]\s+(.+)$/, /^[-*]\s+(.+)$/]
 
+// Every step of the first format that matches, before the cap of MAX_ITEMS.
+function planSteps(lines: string[]): string[] {
+  for (const pattern of PATTERNS) {
+    const steps = lines
+      .map(line => pattern.exec(line)?.[1])
+      .filter((text): text is string => text !== undefined)
+      .map(clean)
+    if (steps.length > 0) {
+      return steps
+    }
+  }
+  return []
+}
+
 export function extractPlan(markdown: string, t: Messages): Plan | null {
   const lines = markdown.split('\n')
   const title = clean(lines.find(line => /^#\s+/.test(line))?.replace(/^#\s+/, '') ?? t.untitled)
+  const items: PlanItem[] = planSteps(lines).map(text => ({ text, evidence: null }))
+  return items.length === 0 ? null : { title, items: items.slice(0, MAX_ITEMS) }
+}
 
-  for (const pattern of PATTERNS) {
-    const items: PlanItem[] = lines
-      .map(line => pattern.exec(line)?.[1])
-      .filter((text): text is string => text !== undefined)
-      .map(text => ({ text: clean(text), evidence: null }))
-    if (items.length > 0) {
-      return { title, items: items.slice(0, MAX_ITEMS) }
-    }
+// A step says how it is verified after its title: "Fix the refund logic: pytest → passed".
+const hasCheck = (text: string) => /:\s+\S/.test(text)
+
+// What keeps a plan from being tracked step by step, as the note that sends it back; null when nothing does.
+export function planProblems(markdown: string, t: Messages): string | null {
+  const steps = planSteps(markdown.split('\n'))
+  if (steps.length === 0) {
+    return [t.planSentBack, t.planNoSteps].join('\n')
   }
-  return null
+  const problems: string[] = []
+  if (steps.length > MAX_ITEMS) {
+    problems.push(t.planTooMany(steps.length, MAX_ITEMS))
+  }
+  const unchecked = steps.map((text, i) => ({ text, n: i + 1 })).filter(one => !hasCheck(one.text))
+  if (unchecked.length > 0) {
+    problems.push(t.planNoCheck, ...unchecked.map(one => `${one.n}. ${one.text}`))
+  }
+  return problems.length === 0 ? null : [t.planSentBack, ...problems].join('\n')
 }
 
 export type CheckOutcome = { plan: Plan } | { error: string }

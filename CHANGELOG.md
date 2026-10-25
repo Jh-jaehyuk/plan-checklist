@@ -2,6 +2,7 @@
 
 ## 0.5.0 (2026-10-25)
 
+- Plans come out the same way each time. In plan mode Claude is told to write one numbered list in order, each step as `what it will do: how it will verify it`, splitting broad areas like "backend" or "deploy" into concrete changes, and not padding a small task. A plan with a step that does not say how it will be verified, more than 20 steps, or no list is sent back to Claude before you are asked to approve it, at most twice.
 - Steps are checked in order. `plan_check` accepts only the first unchecked step and tells Claude which one is next when it asks for another, so the bar no longer shows step 4 done while step 2 is still open. The reminder and the tool description say so too. A resumed session replays checks under the same rule.
 
 ## 0.4.0 (2026-10-12)

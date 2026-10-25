@@ -20,6 +20,12 @@ export type Messages = {
   closed: (title: string) => string
   closedNote: (title: string) => string
   noStepsFound: string
+  planRules: string
+  planRulesShort: string
+  planSentBack: string
+  planNoSteps: string
+  planTooMany: (count: number, max: number) => string
+  planNoCheck: string
   tracking: (count: number) => string
   checked: (done: number, total: number) => string
   finished: (title: string) => string
@@ -57,6 +63,20 @@ export const MESSAGES: Record<Lang, Messages> = {
     closedNote: title =>
       `The user closed the plan "${title}" with steps left. Stop tracking it: do not continue its remaining steps unless the user asks.`,
     noStepsFound: 'plan-checklist: no steps found in the plan (use a numbered list or checkboxes)',
+    planRules: [
+      'plan-checklist turns the plan you write into a checklist. Steps are checked off in order, each only with the verification you ran. Write the steps so they can be tracked:',
+      '- Put the steps in one numbered list (or checkboxes), in the order you will do them, 20 at most.',
+      '- Make each step one change you can verify on its own. Split a broad area such as "backend", "frontend" or "deploy" into the concrete changes it holds.',
+      '- Write each step as "what you will do: how you will verify it", the check a command or an observation with its expected result (e.g. "Add the refund endpoint: pytest tests/test_refund.py passes").',
+      '- A small task may need only two or three steps. Do not pad it.',
+    ].join('\n'),
+    planRulesShort:
+      'plan-checklist: steps in one numbered list in the order you will do them, each "what you will do: how you will verify it", one verifiable change per step, 20 at most.',
+    planSentBack: 'plan-checklist sent the plan back before the user saw it. Fix the plan file, then call ExitPlanMode again.',
+    planNoSteps: 'No steps found. Put the steps in a numbered list or checkboxes.',
+    planTooMany: (count, max) => `The plan has ${count} steps and only ${max} can be tracked. Merge steps or split the work into more than one plan.`,
+    planNoCheck:
+      'These steps do not say how they will be verified. Write each as "what you will do: how you will verify it", and split a step too broad to verify with one check:',
     tracking: count => `Tracking ${count} steps from the approved plan`,
     checked: (done, total) => `Step done (${done}/${total})`,
     finished: title => `All steps done: ${title}`,
@@ -90,6 +110,18 @@ export const MESSAGES: Record<Lang, Messages> = {
     closedNote: title =>
       `사용자가 단계가 남은 계획 "${title}"을 닫았다. 더 이상 추적하지 않는다. 사용자가 요청하지 않으면 남은 단계를 이어서 진행하지 않는다.`,
     noStepsFound: 'plan-checklist: 계획에서 항목을 찾지 못했어요 (번호 목록이나 체크박스가 필요해요)',
+    planRules: [
+      'plan-checklist는 작성한 계획을 체크리스트로 만든다. 단계는 순서대로, 실제로 돌린 검증이 있을 때만 체크된다. 추적할 수 있게 단계를 쓴다:',
+      '- 단계는 진행할 순서대로 번호 목록(또는 체크박스) 하나에 담고, 20개를 넘기지 않는다.',
+      '- 한 단계는 따로 검증할 수 있는 변경 하나다. "백엔드", "프론트엔드", "배포"처럼 넓은 영역은 그 안의 구체적인 변경으로 쪼갠다.',
+      '- 각 단계는 "할 일: 검증 방법"으로 쓴다. 검증은 기대 결과가 있는 명령이나 관찰이다 (예: "환불 API 추가: pytest tests/test_refund.py 통과").',
+      '- 작은 일은 두세 단계면 충분하다. 단계를 억지로 늘리지 않는다.',
+    ].join('\n'),
+    planRulesShort: 'plan-checklist: 단계는 진행 순서대로 번호 목록 하나에, 각 단계는 "할 일: 검증 방법", 단계 하나에 검증 가능한 변경 하나, 최대 20개.',
+    planSentBack: 'plan-checklist가 사용자에게 보이기 전에 계획을 돌려보냈다. 계획 파일을 고친 뒤 ExitPlanMode를 다시 호출한다.',
+    planNoSteps: '단계를 찾지 못했다. 단계를 번호 목록이나 체크박스로 쓴다.',
+    planTooMany: (count, max) => `계획의 단계가 ${count}개인데 ${max}개까지만 추적된다. 단계를 합치거나 일을 여러 계획으로 나눈다.`,
+    planNoCheck: '다음 단계에는 검증 방법이 없다. 각 단계를 "할 일: 검증 방법"으로 쓰고, 검증 하나로 확인할 수 없을 만큼 넓은 단계는 쪼갠다:',
     tracking: count => `승인된 계획에서 단계 ${count}개를 추적해요`,
     checked: (done, total) => `단계 완료 (${done}/${total})`,
     finished: title => `모든 단계 완료: ${title}`,
