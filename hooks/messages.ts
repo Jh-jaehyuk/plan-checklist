@@ -4,6 +4,8 @@ export type Messages = {
   untitled: string
   noPlan: string
   noSuchItem: (item: number, total: number) => string
+  notNext: (item: number, next: number) => string
+  allChecked: string
   needEvidence: string
   subagentCheck: string
   reminderTitle: (title: string, done: number, total: number) => string
@@ -34,16 +36,19 @@ export const MESSAGES: Record<Lang, Messages> = {
     untitled: 'Plan',
     noPlan: 'No plan in progress.',
     noSuchItem: (item, total) => `There is no item ${item}. Pick one from 1 to ${total}.`,
+    notNext: (item, next) =>
+      `Steps are checked in order. The next one is item ${next} (you asked for ${item}). Finish and verify item ${next} first, then check it.`,
+    allChecked: 'Every step of this plan is already checked.',
     needEvidence: 'Evidence is required. Give the verification command you actually ran and its result.',
     subagentCheck: 'Only the main agent checks steps off. Put the commands you ran and their results in your report; the main agent verifies them and checks the step.',
     reminderTitle: (title, done, total) => `# Plan in progress: ${title} (${done}/${total})`,
     reminderLeft: 'Remaining items:',
     reminderRule: tool =>
-      `When you finish an item, call ${tool} with { item, evidence }. Put the verification commands you actually ran in evidence, one per line as "command → result". Do not check an item you have not verified.`,
+      `Work through the items in order. When you finish an item, call ${tool} with { item, evidence }. Put the verification commands you actually ran in evidence, one per line as "command → result". Do not check an item you have not verified.`,
     stopGate:
       'Before ending the turn, check every step you have verified. For a step you cannot verify yet, say in one line why and what it waits for.',
     toolDescription:
-      'Mark one item of the plan in progress as done. Call it only for an item you have verified, and put the verification command you ran and its result in evidence.',
+      'Mark the next unchecked item of the plan in progress as done; items are checked in order. Call it only for an item you have verified, and put the verification command you ran and its result in evidence.',
     itemParam: 'Item number (starting at 1)',
     evidenceParam: 'One check per line, "command → result" (e.g. "pytest tests/x.py → 12 passed")',
     commandDescription: 'Show the steps of the plan in progress with their evidence; close stops tracking it',
@@ -66,15 +71,17 @@ export const MESSAGES: Record<Lang, Messages> = {
     untitled: '계획',
     noPlan: '진행 중인 계획이 없습니다.',
     noSuchItem: (item, total) => `항목 ${item}은 없습니다. 1~${total} 중에서 고르세요.`,
+    notNext: (item, next) => `단계는 순서대로 체크합니다. 다음 항목은 ${next}입니다(요청: ${item}). 항목 ${next}부터 끝내고 검증한 뒤 체크하세요.`,
+    allChecked: '이 계획의 모든 단계가 이미 체크됐습니다.',
     needEvidence: '증거가 필요합니다. 실제로 돌린 검증 명령과 그 결과를 적으세요.',
     subagentCheck: '단계 체크는 메인 에이전트만 합니다. 돌린 명령과 결과를 보고서에 담으세요. 메인 에이전트가 확인하고 체크합니다.',
     reminderTitle: (title, done, total) => `# 진행 중인 계획: ${title} (${done}/${total})`,
     reminderLeft: '남은 항목:',
     reminderRule: tool =>
-      `항목을 끝내면 ${tool}를 { item, evidence }로 호출한다. evidence에는 실제로 돌린 검증을 "명령 → 결과" 형식으로 한 줄에 하나씩 적는다. 검증하지 않은 항목은 체크하지 않는다.`,
+      `항목은 순서대로 진행한다. 항목을 끝내면 ${tool}를 { item, evidence }로 호출한다. evidence에는 실제로 돌린 검증을 "명령 → 결과" 형식으로 한 줄에 하나씩 적는다. 검증하지 않은 항목은 체크하지 않는다.`,
     stopGate: '턴을 끝내기 전에 검증을 마친 항목을 모두 체크한다. 아직 검증할 수 없는 항목은 이유와 무엇을 기다리는지 한 줄로 적는다.',
     toolDescription:
-      '진행 중인 계획의 항목 하나를 완료로 체크한다. 실제로 검증을 끝낸 항목에만 호출하고, evidence에 돌린 검증 명령과 결과를 적는다.',
+      '진행 중인 계획에서 아직 체크하지 않은 다음 항목을 완료로 체크한다. 항목은 순서대로만 체크된다. 실제로 검증을 끝낸 항목에만 호출하고, evidence에 돌린 검증 명령과 결과를 적는다.',
     itemParam: '항목 번호 (1부터)',
     evidenceParam: '검증 하나당 한 줄, "명령 → 결과" (예: "pytest tests/x.py → 12 passed")',
     commandDescription: '진행 중인 계획의 항목과 증거를 보여준다. close로 추적을 끝낸다',

@@ -36,6 +36,14 @@ export function checkItem(plan: Plan | null, item: number, evidence: string, t: 
   if (target === undefined) {
     return { error: t.noSuchItem(item, plan.items.length) }
   }
+  // Steps are checked in order: only the first unchecked one, so the bar means what came before it is done.
+  const next = plan.items.findIndex(one => one.evidence === null) + 1
+  if (next === 0) {
+    return { error: t.allChecked }
+  }
+  if (item !== next) {
+    return { error: t.notNext(item, next) }
+  }
   if (evidence.trim().length < MIN_EVIDENCE) {
     return { error: t.needEvidence }
   }
