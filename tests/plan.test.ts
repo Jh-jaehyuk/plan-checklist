@@ -50,6 +50,19 @@ describe('checkItem', () => {
     expect('error' in checkItem(plan, 4, 'pytest → 3 passed', ko)).toBe(true)
   })
 
+  test('rejects a step ahead of the next one', () => {
+    expect(checkItem(plan, 2, 'pytest → 3 passed', ko)).toEqual({
+      error: '단계는 순서대로 체크합니다. 다음 항목은 1입니다(요청: 2). 항목 1부터 끝내고 검증한 뒤 체크하세요.',
+    })
+  })
+
+  test('rejects a step already checked', () => {
+    const outcome = checkItem(plan, 1, 'pytest → 1 failed (RED)', ko)
+    if (!('plan' in outcome)) throw new Error('expected plan')
+    expect('error' in checkItem(outcome.plan, 1, 'pytest → 3 passed', ko)).toBe(true)
+    expect('plan' in checkItem(outcome.plan, 2, 'pytest → 3 passed', ko)).toBe(true)
+  })
+
   test('records evidence and shrinks reminder', () => {
     const outcome = checkItem(plan, 1, 'pytest tests/test_refund.py → 1 failed (RED)', ko)
     if (!('plan' in outcome)) throw new Error('expected plan')
@@ -68,6 +81,7 @@ describe('checkItem', () => {
       current = outcome.plan
     }
     expect(current === null ? 'x' : reminder(current, 'T', ko)).toBe(null)
+    expect(checkItem(current, 3, 'pytest → 3 passed', ko)).toEqual({ error: '이 계획의 모든 단계가 이미 체크됐습니다.' })
   })
 })
 

@@ -39,6 +39,22 @@ test('a resumed session rebuilds the plan from its transcript', async ($, on) =>
   expect(JSON.stringify(next)).toContain('2/3')
 })
 
+test('a check refused for being out of order is not replayed', async ($, on) => {
+  engine(on, [
+    TRANSCRIPT[0],
+    {
+      role: 'assistant' as const,
+      text: '',
+      toolUses: [{ tool_use_id: 't2', tool: CHECK, input: { item: 2, evidence: 'pytest → 3 passed' }, text: 'refused' }],
+    },
+  ])
+
+  await $.session.start({ cwd: '/repo', surface: 'terminal', isInteractive: true })
+
+  const first = await $.tool.call({ tool: CHECK, item: 1, evidence: 'node test.js → exit=1 (RED)' })
+  expect(JSON.stringify(first)).toContain('1/3')
+})
+
 test('a fresh session with no plan in its transcript has none', async ($, on) => {
   engine(on, [])
 

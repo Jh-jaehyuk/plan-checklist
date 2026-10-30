@@ -3,12 +3,17 @@ import type { EngineInterface, Register } from 'claude-code'
 
 import type { Messages } from './messages'
 import { messagesFor } from './messages'
-import { bandLayout, checkItem, checklistMarkdown, doneCount, extractPlan, filledCells, replayPlan, reminder, sinceLastClose, stepTitle } from './plan'
+import { bandLayout, checkItem, checklistMarkdown, doneCount, extractPlan, filledCells, planProblems, replayPlan, reminder, sinceLastClose, stepTitle } from './plan'
 
 const plan = atom({ plugin: 'plan-checklist', key: 'plan' } as const, null)
 const isExpanded = atom({ plugin: 'plan-checklist', key: 'isExpanded' } as const, false)
 // How many steps were done when a stop was last blocked: a step Claude cannot check yet blocks once, not every turn.
 const nudgedAt = atom({ plugin: 'plan-checklist', key: 'nudgedAt' } as const, null)
+// Where Claude writes its plan, as plan mode's reminder names it, and how often a plan was sent back since one reached the user.
+const planFile = atom({ plugin: 'plan-checklist', key: 'planFile' } as const, null)
+const sentBack = atom({ plugin: 'plan-checklist', key: 'sentBack' } as const, 0)
+// A plan that still falls short after this many send-backs goes to the user as it is, so planning cannot loop.
+const MAX_SENT_BACK = 2
 
 const CHECK_TOOL = 'mcp__plan-checklist__plan_check'
 
@@ -54,7 +59,29 @@ export const register: Register = (on, options) => {
     return next(e)
   }).catch(($, e, next) => next(e))
 
+  // Plan mode's reminder carries how to write steps that can be tracked, and names the plan file.
+  on('prompt.attachment', { type: 'plan_mode' }, async ($, e, next) => {
+    const path = e.detail?.planFilePath
+    if (e.agentId === undefined && path !== undefined) {
+      await update($, planFile, () => path)
+    }
+    const rules = e.detail?.reminder === 'sparse' ? t.planRulesShort : t.planRules
+    return next({ ...e, text: [e.text, rules].join('\n\n') })
+  }).catch(($, e, next) => next(e))
+
+  // A plan whose steps cannot be tracked goes back to Claude before the user is asked to approve it.
   on('tool.call', { tool: 'ExitPlanMode' }, async ($, e, next) => {
+    const path = await read($, planFile)
+    if (e.agentId === undefined && path !== null && (await read($, sentBack)) < MAX_SENT_BACK) {
+      const markdown = await $.fs.read(path).catch(() => null)
+      const problems = typeof markdown === 'string' ? planProblems(markdown, t) : null
+      if (problems !== null) {
+        await update($, sentBack, n => n + 1)
+        return { deny: problems }
+      }
+    }
+    await update($, sentBack, () => 0)
+
     const ran = await next(e)
     if (ran.deny !== undefined || ran.isError === true || ran.result.plan === null) {
       return ran

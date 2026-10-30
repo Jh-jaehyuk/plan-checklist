@@ -20,11 +20,12 @@ Answer `y` to add the marketplace, then pick a scope (user scope loads it in eve
 
 ## How it works
 
-1. **Approve a plan.** When you accept a plan in plan mode, its steps become a todo list. The steps are the plan's checkboxes; if there are none, its top-level numbered list; failing that, its top-level bullets.
-2. **Watch progress above the prompt.** A one-line band shows the progress bar and the step Claude is on. Press **Show all** to see every step, and **Hide** to collapse it again.
-3. **Claude checks steps with evidence.** Claude marks a step done through the `plan_check` tool, and must say which verification it ran and what came out (for example `pytest tests/test_refund.py → 12 passed`). A check without real evidence is refused. Only the main agent checks: any other agent (a subagent, a teammate, a workflow agent) is refused and reports its evidence instead, and the main agent verifies it before checking the step.
-4. **Nothing gets forgotten.** Every turn, Claude is reminded of the remaining steps. The list survives `/compact`, and `/clear` wipes it.
-5. **You can end it early.** `/checklist close` stops tracking a plan that still has steps left, and tells Claude not to carry on with them. A resumed session does not bring it back.
+1. **Claude writes a plan you can track.** In plan mode, Claude is told to write the steps as one numbered list in order, each as `what it will do: how it will verify it`, with one verifiable change per step. Before the plan reaches you, it is checked: if a step does not say how it will be verified (like a bare "Backend"), it is past the 20 tracked, or there is no list at all, Claude gets the plan back with the steps to fix. A plan still short after two send-backs reaches you as it is.
+2. **Approve a plan.** When you accept a plan in plan mode, its steps become a todo list. The steps are the plan's checkboxes; if there are none, its top-level numbered list; failing that, its top-level bullets.
+3. **Watch progress above the prompt.** A one-line band shows the progress bar and the step Claude is on. Press **Show all** to see every step, and **Hide** to collapse it again.
+4. **Claude checks steps with evidence.** Claude marks a step done through the `plan_check` tool, and must say which verification it ran and what came out (for example `pytest tests/test_refund.py → 12 passed`). A check without real evidence is refused, and so is a check out of order: only the first unchecked step can be checked, so everything before the bar's position is really done. Only the main agent checks: any other agent (a subagent, a teammate, a workflow agent) is refused and reports its evidence instead, and the main agent verifies it before checking the step.
+5. **Nothing gets forgotten.** Every turn, Claude is reminded of the remaining steps. The list survives `/compact`, and `/clear` wipes it.
+6. **You can end it early.** `/checklist close` stops tracking a plan that still has steps left, and tells Claude not to carry on with them. A resumed session does not bring it back.
 
 When every step is checked you get a toast and the bar turns green.
 
